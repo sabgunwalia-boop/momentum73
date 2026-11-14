@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Momentum 73" />
   <title>Momentum 73 — Personal Health OS</title>
-  <link rel="manifest" id="manifest-placeholder" />
+  <link rel="manifest" href="manifest.json" />
   <style>
     :root {
       --bg: #0b1120;
@@ -756,20 +756,9 @@
     el.classList.add('active');
   }
 
-  // INLINE PWA MANIFEST FOR STANDALONE HOME-SCREEN INSTALL
-  const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="42" fill="#0f172a"/><circle cx="96" cy="96" r="62" fill="none" stroke="#10b981" stroke-width="14"/><text x="96" y="108" font-size="44" font-family="sans-serif" font-weight="bold" fill="#f1f5f9" text-anchor="middle">73</text></svg>`;
-  const manifestObj = {
-    name: 'Momentum 73',
-    short_name: 'Momentum 73',
-    start_url: '.',
-    display: 'standalone',
-    background_color: '#0b1120',
-    theme_color: '#0f172a',
-    icons: [{ src: 'data:image/svg+xml;base64,' + btoa(iconSvg), sizes: '192x192', type: 'image/svg+xml' }]
-  };
-  document.getElementById('manifest-placeholder').setAttribute('href', 'data:application/manifest+json;base64,' + btoa(JSON.stringify(manifestObj)));
-
-  renderAll();
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
   resetTimer();
 </script>
 </body>
