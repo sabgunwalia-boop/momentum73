@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Momentum 73" />
+  <title>Momentum 73 — Personal Health OS</title>
+  <link rel="manifest" id="manifest-placeholder" />
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #151f32;
+      --card-alt: #1e293b;
+      --border: #293548;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #10b981;
+      --accent-soft: rgba(16, 185, 129, 0.15);
+      --warn: #f59e0b;
+      --warn-soft: rgba(245, 158, 11, 0.15);
+      --danger: #ef4444;
+      --danger-soft: rgba(239, 68, 68, 0.15);
+      --purple: #8b5cf6;
+      --purple-soft: rgba(139, 92, 246, 0.16);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 130px;
+    }
+    .app { max-width: 480px; margin: 0 auto; padding: 16px; }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 14px;
+    }
+    h1 { font-size: 1.2rem; margin: 0; font-weight: 700; letter-spacing: -0.3px; }
+    .sub { font-size: 0.78rem; color: var(--muted); }
+    .badge {
+      font-size: 0.72rem; font-weight: 600; padding: 4px 10px;
+      border-radius: 999px; background: var(--card-alt); border: 1px solid var(--border);
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 14px; margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.6px;
+      color: var(--muted); font-weight: 700; margin: 0 0 10px 0;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .quote-box {
+      background: linear-gradient(135deg, #172554, #1e1b4b);
+      border: 1px solid #312e81; border-radius: 14px; padding: 12px 14px;
+      font-size: 0.85rem; line-height: 1.45; color: #e0e7ff; margin-bottom: 12px;
+    }
+    .cycle-banner {
+      border-radius: 14px; padding: 12px; margin-bottom: 12px;
+      font-size: 0.83rem; line-height: 1.4;
+    }
+    .cycle-luteal { background: var(--purple-soft); border: 1px solid var(--purple); color: #ede9fe; }
+    .cycle-normal { background: var(--accent-soft); border: 1px solid var(--accent); color: #d1fae5; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    input[type="number"], input[type="date"], input[type="text"], select {
+      width: 100%; background: var(--card-alt); border: 1px solid var(--border);
+      color: var(--text); border-radius: 10px; padding: 10px; font-size: 0.9rem;
+    }
+    label { font-size: 0.74rem; color: var(--muted); display: block; margin-bottom: 4px; }
+    .habit-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--card-alt); border: 1px solid var(--border);
+      padding: 12px; border-radius: 12px; margin-bottom: 8px; cursor: pointer;
+    }
+    .habit-item.done { border-color: var(--accent); background: rgba(16, 185, 129, 0.08); }
+    .check-box {
+      width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--muted);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+      font-weight: 800; font-size: 0.85rem;
+    }
+    .habit-item.done .check-box { background: var(--accent); border-color: var(--accent); color: #052e16; }
+    .habit-text strong { display: block; font-size: 0.9rem; margin-bottom: 2px; }
+    .habit-text span { font-size: 0.76rem; color: var(--muted); }
+    .vault-bar {
+      height: 10px; background: var(--card-alt); border-radius: 999px;
+      overflow: hidden; margin: 10px 0; border: 1px solid var(--border);
+    }
+    .vault-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+    .btn {
+      width: 100%; padding: 12px; border-radius: 12px; border: none;
+      font-weight: 700; font-size: 0.9rem; cursor: pointer;
+    }
+    .btn-primary { background: var(--accent); color: #052e16; }
+    .btn-warn { background: var(--warn); color: #1c1917; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-ghost { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .fab {
+      position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%);
+      width: calc(100% - 32px); max-width: 448px;
+      background: linear-gradient(90deg, #dc2626, #d97706);
+      color: #fff; border: none; border-radius: 14px; padding: 13px;
+      font-weight: 800; font-size: 0.9rem; box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+      cursor: pointer; z-index: 20;
+    }
+    nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #0f172a; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-around; padding: 8px 0 12px; z-index: 30;
+    }
+    nav button {
+      background: none; border: none; color: var(--muted);
+      font-size: 0.72rem; font-weight: 600; display: flex; flex-direction: column;
+      align-items: center; gap: 3px; cursor: pointer; padding: 4px 12px;
+    }
+    nav button.active { color: var(--accent); }
+    nav button span.ico { font-size: 1.2rem; }
+    .tab { display: none; }
+    .tab.active { display: block; }
+    .stat-big { font-size: 1.45rem; font-weight: 800; margin: 4px 0; }
+    .timer-display {
+      text-align: center; padding: 18px; background: var(--card-alt);
+      border-radius: 14px; margin: 10px 0;
+    }
+    .timer-clock { font-size: 2.6rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(2, 6, 23, 0.92);
+      display: none; align-items: center; justify-content: center; padding: 16px; z-index: 50;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 18px; width: 100%; max-width: 440px;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .pill-group { display: flex; gap: 6px; }
+    .pill {
+      flex: 1; padding: 8px 4px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--card-alt); color: var(--text); font-weight: 700; cursor: pointer;
+    }
+    .pill.selected { background: var(--accent); color: #052e16; border-color: var(--accent); }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>Momentum 73</h1>
+      <div class="sub">Start: 93 kg → Goal: 73 kg (1,500 kcal / 110g Protein)</div>
+    </div>
+    <div class="badge" id="header-date"></div>
+  </header>
+
+  <!-- TAB 1: TODAY -->
+  <div id="tab-today" class="tab active">
+    <div class="quote-box" id="daily-quote"></div>
+    <div id="cycle-banner" class="cycle-banner cycle-normal"></div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>Today's 3 Non-Negotiables</span>
+        <span id="daily-status-badge" class="badge">0/3 Done</span>
+      </div>
+      <div id="habit-list"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>5-Day Treat Pass Vault</span>
+        <span id="vault-label" class="badge">0 / 5 Days</span>
+      </div>
+      <div class="vault-bar"><div class="vault-fill" id="vault-fill" style="width:0%"></div></div>
+      <div class="sub" id="vault-desc">Complete all 3 habits for 5 consecutive days to unlock 1 guilt-free outside meal.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>Morning Check-In & Bloat Log</span></div>
+      <div class="grid-3" style="margin-bottom:10px;">
+        <div>
+          <label>Weight (kg)</label>
+          <input type="number" step="0.1" id="input-weight" placeholder="93.0" />
+        </div>
+        <div>
+          <label>Bloat (1=Flat, 5=High)</label>
+          <select id="input-bloat">
+            <option value="1">1 - Flat</option>
+            <option value="2">2 - Mild</option>
+            <option value="3" selected>3 - Moderate</option>
+            <option value="4">4 - Puffy</option>
+            <option value="5">5 - Heavy</option>
+          </select>
+        </div>
+        <div>
+          <label>Energy (1-5)</label>
+          <select id="input-energy">
+            <option value="1">1 - Drained</option>
+            <option value="2">2 - Low</option>
+            <option value="3" selected>3 - Steady</option>
+            <option value="4">4 - Good</option>
+            <option value="5">5 - High</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveCheckIn()">Save Today's Check-In</button>
+    </div>
+  </div>
+
+  <!-- TAB 2: PLAN & TIMER -->
+  <div id="tab-plan" class="tab">
+    <div class="card">
+      <div class="card-title"><span>Vegetarian Anchor-Lunch Menu (~1,500 kcal)</span></div>
+      <div id="meal-list"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>Joint-Safe Workout Timer (45s Work / 20s Rest)</span></div>
+      <select id="routine-select" onchange="loadRoutine()" style="margin-bottom:10px;">
+        <option value="evening">7:00 PM Strength Circuit (3 Rounds • 16 Mins)</option>
+        <option value="latenight">9:30 PM Late-Night Walk & Lymphatic Flow (20 Mins)</option>
+      </select>
+      <div class="timer-display">
+        <div class="sub" id="timer-phase">READY</div>
+        <div class="timer-clock" id="timer-clock">00:45</div>
+        <div style="font-weight:700; margin-top:4px;" id="timer-exercise">Chair-Assisted Box Squats</div>
+      </div>
+      <div class="grid-2">
+        <button class="btn btn-primary" id="timer-toggle-btn" onclick="toggleTimer()">Start Workout</button>
+        <button class="btn btn-ghost" onclick="resetTimer()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: MICRO-WINS & CYCLE SETTINGS -->
+  <div id="tab-progress" class="tab">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span>7-Day Rolling Avg</span></div>
+        <div class="stat-big" id="stat-avg-weight">93.0 kg</div>
+        <div class="sub" id="stat-weight-delta">0.0 kg from start</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>Fat Equivalent Burned</span></div>
+        <div class="stat-big" id="stat-fat-burned">0.00 kg</div>
+        <div class="sub" id="stat-streak-days">0 clean streak days</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>Avg Bloat Score</span></div>
+        <div class="stat-big" id="stat-avg-bloat">-- / 5</div>
+        <div class="sub">Lower = less water retention</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>Healthy Swaps Chosen</span></div>
+        <div class="stat-big" id="stat-swaps">0</div>
+        <div class="sub">Cravings defeated</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>Cycle Shield Calibration</span></div>
+      <div class="grid-2" style="margin-bottom:10px;">
+        <div>
+          <label>Last Period Start Date</label>
+          <input type="date" id="cycle-start-input" />
+        </div>
+        <div>
+          <label>Cycle Length (Days)</label>
+          <input type="number" id="cycle-len-input" value="28" min="21" max="40" />
+        </div>
+      </div>
+      <button class="btn btn-ghost" onclick="saveCycleSettings()">Update Cycle Shield</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>Recent Check-In History</span></div>
+      <div id="history-list" class="sub">No check-ins logged yet.</div>
+    </div>
+  </div>
+</div>
+
+<button class="fab" onclick="openDissuader()">Craving / Ordering Outside Food</button>
+
+<nav>
+  <button class="active" onclick="switchTab('today', this)"><span class="ico">◉</span>Today</button>
+  <button onclick="switchTab('plan', this)"><span class="ico">◷</span>Plan & Timer</button>
+  <button onclick="switchTab('progress', this)"><span class="ico">▲</span>Micro-Wins</button>
+</nav>
+
+<!-- OUTSIDE FOOD DISSUADER MODAL -->
+<div class="modal-backdrop" id="dissuader-modal">
+  <div class="modal">
+    <div id="dissuader-step-1">
+      <div class="card-title"><span>Step 1 of 3 • Impulse Circuit Breaker</span></div>
+      <h2 style="margin:6px 0; font-size:1.1rem;">Pause for 90 Seconds</h2>
+      <p class="sub" style="font-size:0.85rem; line-height:1.45;">
+        Ask yourself: <em>"Is this real physical stomach hunger, or 6:00 PM work exhaustion?"</em> Breathe slowly until the gate unlocks.
+      </p>
+      <div class="timer-display">
+        <div class="timer-clock" id="cooldown-clock">01:30</div>
+        <div class="sub">Mandatory cool-down active</div>
+      </div>
+      <div class="grid-2">
+        <button class="btn btn-ghost" onclick="closeDissuader()">Cancel (I'm Good)</button>
+        <button class="btn btn-warn" id="cooldown-next-btn" disabled onclick="showDissuaderStep(2)">Continue</button>
+      </div>
+    </div>
+
+    <div id="dissuader-step-2" style="display:none;">
+      <div class="card-title"><span>Step 2 of 3 • Biological Reality Check</span></div>
+      <div style="background:var(--danger-soft); border:1px solid var(--danger); padding:12px; border-radius:12px; margin-bottom:10px;">
+        <strong style="color:#fca5a5;">Typical Restaurant / Delivery Meal</strong>
+        <div class="sub" style="color:#fecaca; margin-top:4px;">~950 kcal + 1,800 mg sodium → <strong>+1.1 kg overnight water bloat</strong> & delays your 73 kg target by 4 days.</div>
+      </div>
+      <div style="background:var(--accent-soft); border:1px solid var(--accent); padding:12px; border-radius:12px; margin-bottom:14px;">
+        <strong style="color:#6ee7b7;">Pre-Approved High-Satiety Swap (~250 kcal)</strong>
+        <div class="sub" style="color:#d1fae5; margin-top:4px;">1 bowl roasted makhana/chana + green tea, OR 120g paneer tikka with mint chutney. Flat stomach tomorrow morning.</div>
+      </div>
+      <button class="btn btn-primary" style="margin-bottom:8px;" onclick="chooseHealthySwap()">I'll Eat the Healthy Swap Instead</button>
+      <button class="btn btn-ghost" onclick="showDissuaderStep(3)">I Still Want Outside Food</button>
+    </div>
+
+    <div id="dissuader-step-3" style="display:none;">
+      <div class="card-title"><span>Step 3 of 3 • Streak Accountability Gate</span></div>
+      <div id="step-3-content"></div>
+      <button class="btn btn-ghost" style="margin-top:8px;" onclick="closeDissuader()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'momentum73_pwa_v1';
+  const QUOTES = [
+    "Motivation quits the second things get uncomfortable. Rely on your system, not your mood.",
+    "You don't have to lose 20 kg today. You only have to win the next 30 minutes.",
+    "Never miss twice. One imperfect meal is data; two in a row is a relapse.",
+    "Discomfort is not a stop sign—it is the sensation of your body remodeling itself.",
+    "Future you is watching right now, hoping you don't make her start over from Day 1 again."
+  ];
+
+  const HABITS = [
+    { id: 'protein', title: 'Hit 110g Vegetarian Protein', desc: 'Anchor lunch + protein breakfast/dinner completed' },
+    { id: 'move', title: '20-Min Joint-Safe Workout or 5k Steps', desc: 'Post-lunch walk + 7 PM circuit or late-night march' },
+    { id: 'dinner', title: 'Featherweight Dinner Before 9:00 PM', desc: 'Zero heavy grains at night to prevent morning bloat' }
+  ];
+
+  const MEALS = [
+    { id: 'm1', time: '8:30 AM • Pre-Commute (~250 kcal)', items: '1 scoop whey/plant protein in water + 5 soaked almonds OR 150g low-fat Greek yogurt/hung curd.' },
+    { id: 'm2', time: '1:30 PM • Heavy Anchor Lunch (~700 kcal)', items: '150g grilled paneer/tofu OR 60g soya chunks + 1.5 cups brown rice/2 multigrain rotis + large salad.' },
+    { id: 'm3', time: '5:00 PM • Commute Bridge (~150 kcal)', items: '1 cup roasted makhana or roasted chana + green tea/black coffee (kills drive-home cravings).' },
+    { id: 'm4', time: '8:00 PM • Featherweight Dinner (~400 kcal)', items: 'Zero grains: Clear veg-tofu soup OR sautéed veggies + 120g paneer tikka OR 2 moong dal chillas.' }
+  ];
+
+  const ROUTINES = {
+    evening: [
+      { name: 'Chair-Assisted Box Squats', work: 45, rest: 20 },
+      { name: 'Incline Wall / Counter Push-Ups', work: 45, rest: 20 },
+      { name: 'Standing Cross-Body Knee Drives', work: 45, rest: 20 },
+      { name: 'Floor Glute Bridges (2s Squeeze)', work: 45, rest: 20 },
+      { name: 'Wall Plank Isometric Core Hold', work: 45, rest: 20 }
+    ],
+    latenight: [
+      { name: 'Indoor Brisk Pace / March (Podcast Walk)', work: 360, rest: 15 },
+      { name: 'Indoor Brisk Pace / March (Set 2)', work: 360, rest: 15 },
+      { name: 'Cat-Cow Spine Mobility Flow', work: 90, rest: 10 },
+      { name: 'Wall-Supported Deep Sumo Hold', work: 90, rest: 10 },
+      { name: 'Legs-Up-The-Wall Lymphatic Drain', work: 180, rest: 0 }
+    ]
+  };
+
+  function getTodayKey() {
+    const d = new Date();
+    return d.toISOString().split('T')[0];
+  }
+
+  function loadState() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+    const defaultStart = new Date();
+    defaultStart.setDate(defaultStart.getDate() - 10);
+    return {
+      startWeight: 93.0,
+      goalWeight: 73.0,
+      cycleStart: defaultStart.toISOString().split('T')[0],
+      cycleLength: 28,
+      streak: 0,
+      longestStreak: 0,
+      swapsCount: 0,
+      days: {}
+    };
+  }
+
+  let state = loadState();
+  function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+  function ensureToday() {
+    const k = getTodayKey();
+    if (!state.days[k]) {
+      state.days[k] = { habits: {}, meals: {}, weight: null, bloat: null, energy: null, completed: false };
+    }
+    return state.days[k];
+  }
+
+  function renderAll() {
+    const todayKey = getTodayKey();
+    document.getElementById('header-date').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+    const dayIndex = new Date().getDate() % QUOTES.length;
+    document.getElementById('daily-quote').textContent = `"${QUOTES[dayIndex]}"`;
+
+    renderCycleBanner();
+    renderHabits();
+    renderVault();
+    renderMeals();
+    renderProgress();
+
+    const today = ensureToday();
+    if (today.weight) document.getElementById('input-weight').value = today.weight;
+    if (today.bloat) document.getElementById('input-bloat').value = today.bloat;
+    if (today.energy) document.getElementById('input-energy').value = today.energy;
+    document.getElementById('cycle-start-input').value = state.cycleStart;
+    document.getElementById('cycle-len-input').value = state.cycleLength;
+  }
+
+  function renderCycleBanner() {
+    const start = new Date(state.cycleStart);
+    const now = new Date();
+    const diffDays = Math.max(0, Math.floor((now - start) / (1000 * 60 * 60 * 24)));
+    const cycleDay = (diffDays % state.cycleLength) + 1;
+    const banner = document.getElementById('cycle-banner');
+
+    if (cycleDay >= 18) {
+      banner.className = 'cycle-banner cycle-luteal';
+      banner.innerHTML = `<strong>Cycle Day ${cycleDay} • Luteal Shield Active:</strong> Progesterone causes 1.5–2.5 kg temporary water retention right now. Scale judgment is paused—stick to your 3 habits & enjoy +150 kcal roasted snack buffer.`;
+    } else if (cycleDay <= 5) {
+      banner.className = 'cycle-banner cycle-luteal';
+      banner.innerHTML = `<strong>Cycle Day ${cycleDay} • Menstrual Reset Phase:</strong> Prioritize hydration, warm soups, and the 9:30 PM gentle walk/stretch if energy is low.`;
+    } else {
+      banner.className = 'cycle-banner cycle-normal';
+      banner.innerHTML = `<strong>Cycle Day ${cycleDay} • High-Burn Follicular/Ovulatory Window:</strong> Insulin sensitivity and energy are peaking. Optimal days for fast scale drops.`;
+    }
+  }
+
+  function renderHabits() {
+    const today = ensureToday();
+    const container = document.getElementById('habit-list');
+    container.innerHTML = '';
+    let doneCount = 0;
+
+    HABITS.forEach(h => {
+      const isDone = !!today.habits[h.id];
+      if (isDone) doneCount++;
+      const div = document.createElement('div');
+      div.className = `habit-item ${isDone ? 'done' : ''}`;
+      div.onclick = () => toggleHabit(h.id);
+      div.innerHTML = `
+        <div class="check-box">${isDone ? '✓' : ''}</div>
+        <div class="habit-text">
+          <strong>${h.title}</strong>
+          <span>${h.desc}</span>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+
+    document.getElementById('daily-status-badge').textContent = `${doneCount}/3 Done`;
+  }
+
+  function toggleHabit(id) {
+    const today = ensureToday();
+    today.habits[id] = !today.habits[id];
+    const allDone = HABITS.every(h => today.habits[h.id]);
+
+    if (allDone && !today.completed) {
+      today.completed = true;
+      state.streak += 1;
+      if (state.streak > state.longestStreak) state.longestStreak = state.streak;
+    } else if (!allDone && today.completed) {
+      today.completed = false;
+      state.streak = Math.max(0, state.streak - 1);
+    }
+    saveState();
+    renderAll();
+  }
+
+  function renderVault() {
+    const capped = Math.min(5, state.streak);
+    const unlocked = state.streak >= 5;
+    document.getElementById('vault-label').textContent = unlocked ? 'UNLOCKED!' : `${capped} / 5 Days`;
+    document.getElementById('vault-fill').style.width = `${(capped / 5) * 100}%`;
+    document.getElementById('vault-desc').textContent = unlocked
+      ? 'Your 1-Meal Guilt-Free Treat Pass is ready! Redeem it inside the Craving button whenever you choose.'
+      : `Complete all 3 habits for ${5 - capped} more consecutive day(s) to unlock 1 guilt-free outside meal.`;
+  }
+
+  function saveCheckIn() {
+    const today = ensureToday();
+    const w = parseFloat(document.getElementById('input-weight').value);
+    if (!isNaN(w) && w > 30 && w < 250) today.weight = w;
+    today.bloat = parseInt(document.getElementById('input-bloat').value, 10);
+    today.energy = parseInt(document.getElementById('input-energy').value, 10);
+    saveState();
+    renderProgress();
+    alert('Morning check-in saved locally.');
+  }
+
+  function renderMeals() {
+    const today = ensureToday();
+    const container = document.getElementById('meal-list');
+    container.innerHTML = '';
+    MEALS.forEach(m => {
+      const isDone = !!today.meals[m.id];
+      const div = document.createElement('div');
+      div.className = `habit-item ${isDone ? 'done' : ''}`;
+      div.onclick = () => {
+        today.meals[m.id] = !today.meals[m.id];
+        saveState();
+        renderMeals();
+      };
+      div.innerHTML = `
+        <div class="check-box">${isDone ? '✓' : ''}</div>
+        <div class="habit-text">
+          <strong>${m.time}</strong>
+          <span>${m.items}</span>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function renderProgress() {
+    const entries = Object.entries(state.days).sort((a, b) => a[0].localeCompare(b[0]));
+    const weights = entries.map(e => e[1].weight).filter(w => w !== null);
+    const bloats = entries.map(e => e[1].bloat).filter(b => b !== null);
+    const completedDays = entries.filter(e => e[1].completed).length;
+
+    const recentWeights = weights.slice(-7);
+    const avgWeight = recentWeights.length
+      ? (recentWeights.reduce((a, b) => a + b, 0) / recentWeights.length)
+      : state.startWeight;
+    const delta = (avgWeight - state.startWeight).toFixed(1);
+
+    document.getElementById('stat-avg-weight').textContent = `${avgWeight.toFixed(1)} kg`;
+    document.getElementById('stat-weight-delta').textContent = `${delta > 0 ? '+' : ''}${delta} kg vs 93.0 kg start`;
+
+    const estFatKg = (completedDays * 500) / 7700;
+    document.getElementById('stat-fat-burned').textContent = `${estFatKg.toFixed(2)} kg`;
+    document.getElementById('stat-streak-days').textContent = `${completedDays} total on-plan days`;
+
+    const avgBloat = bloats.length ? (bloats.reduce((a, b) => a + b, 0) / bloats.length).toFixed(1) : '--';
+    document.getElementById('stat-avg-bloat').textContent = `${avgBloat} / 5`;
+    document.getElementById('stat-swaps').textContent = state.swapsCount;
+
+    const hist = document.getElementById('history-list');
+    if (!entries.length) return;
+    hist.innerHTML = entries.slice(-7).reverse().map(([date, d]) =>
+      `<div style="padding:6px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between;">
+        <span>${date}</span>
+        <span>${d.weight ? d.weight + ' kg' : '--'} • Bloat: ${d.bloat || '-'}/5 • ${d.completed ? '✅ Streak' : '⏳'}</span>
+      </div>`
+    ).join('');
+  }
+
+  function saveCycleSettings() {
+    const val = document.getElementById('cycle-start-input').value;
+    const len = parseInt(document.getElementById('cycle-len-input').value, 10);
+    if (val) state.cycleStart = val;
+    if (len >= 21 && len <= 40) state.cycleLength = len;
+    saveState();
+    renderCycleBanner();
+    alert('Cycle Shield updated.');
+  }
+
+  // DISSUADER MODAL LOGIC
+  let cooldownInterval = null;
+  function openDissuader() {
+    document.getElementById('dissuader-modal').classList.add('open');
+    showDissuaderStep(1);
+    let secs = 90;
+    const btn = document.getElementById('cooldown-next-btn');
+    const clock = document.getElementById('cooldown-clock');
+    btn.disabled = true;
+    clock.textContent = '01:30';
+    clearInterval(cooldownInterval);
+    cooldownInterval = setInterval(() => {
+      secs--;
+      const m = String(Math.floor(secs / 60)).padStart(2, '0');
+      const s = String(secs % 60).padStart(2, '0');
+      clock.textContent = `${m}:${s}`;
+      if (secs <= 0) {
+        clearInterval(cooldownInterval);
+        btn.disabled = false;
+      }
+    }, 1000);
+  }
+
+  function closeDissuader() {
+    clearInterval(cooldownInterval);
+    document.getElementById('dissuader-modal').classList.remove('open');
+  }
+
+  function showDissuaderStep(step) {
+    document.getElementById('dissuader-step-1').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('dissuader-step-2').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('dissuader-step-3').style.display = step === 3 ? 'block' : 'none';
+
+    if (step === 3) {
+      const box = document.getElementById('step-3-content');
+      if (state.streak >= 5) {
+        box.innerHTML = `
+          <p class="sub" style="font-size:0.86rem; color:#d1fae5;">Your 5-Day Treat Pass is <strong>UNLOCKED</strong>. Enjoy 1 mindful outside meal—your vault will reset cleanly to 0/5 without marking a failure.</p>
+          <button class="btn btn-primary" onclick="redeemTreatPass()">Redeem 1-Meal Treat Pass</button>
+        `;
+      } else {
+        box.innerHTML = `
+          <p class="sub" style="font-size:0.85rem; color:#fca5a5;">Your Treat Pass is LOCKED (${state.streak}/5 days). To log outside food now, type the exact phrase below:</p>
+          <div style="font-weight:700; font-size:0.85rem; margin:8px 0; color:#fff;">I choose to reset my streak</div>
+          <input type="text" id="reset-phrase-input" placeholder="Type exact phrase..." style="margin-bottom:10px;" />
+          <button class="btn btn-danger" onclick="confirmStreakReset()">Confirm & Reset Streak</button>
+        `;
+      }
+    }
+  }
+
+  function chooseHealthySwap() {
+    state.swapsCount += 1;
+    saveState();
+    renderProgress();
+    closeDissuader();
+    alert('Craving defeated! Healthy swap logged.');
+  }
+
+  function redeemTreatPass() {
+    state.streak = 0;
+    saveState();
+    renderAll();
+    closeDissuader();
+    alert('Treat Pass redeemed! Enjoy your meal and return to your anchor lunch tomorrow.');
+  }
+
+  function confirmStreakReset() {
+    const val = document.getElementById('reset-phrase-input').value.trim();
+    if (val !== 'I choose to reset my streak') {
+      alert('Phrase does not match exactly.');
+      return;
+    }
+    state.streak = 0;
+    const today = ensureToday();
+    today.completed = false;
+    saveState();
+    renderAll();
+    closeDissuader();
+  }
+
+  // WORKOUT INTERVAL TIMER WITH AUDIO CUES
+  let timerInterval = null;
+  let timerRunning = false;
+  let exIndex = 0;
+  let roundNum = 1;
+  let isResting = false;
+  let secondsLeft = 45;
+
+  function beep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      osc.frequency.value = 660;
+      osc.connect(ctx.destination);
+      osc.start();
+      setTimeout(() => osc.stop(), 180);
+    } catch (e) {}
+  }
+
+  function loadRoutine() {
+    resetTimer();
+  }
+
+  function updateTimerUI() {
+    const key = document.getElementById('routine-select').value;
+    const list = ROUTINES[key];
+    const maxRounds = key === 'evening' ? 3 : 1;
+    const current = list[exIndex];
+    const m = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
+    const s = String(secondsLeft % 60).padStart(2, '0');
+    document.getElementById('timer-clock').textContent = `${m}:${s}`;
+    document.getElementById('timer-phase').textContent = isResting
+      ? `REST • Round ${roundNum}/${maxRounds}`
+      : `WORK • Round ${roundNum}/${maxRounds} (${exIndex + 1}/${list.length})`;
+    document.getElementById('timer-exercise').textContent = isResting
+      ? `Next: ${list[(exIndex + 1) % list.length].name}`
+      : current.name;
+  }
+
+  function toggleTimer() {
+    const btn = document.getElementById('timer-toggle-btn');
+    if (timerRunning) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      btn.textContent = 'Resume Workout';
+      return;
+    }
+    timerRunning = true;
+    btn.textContent = 'Pause';
+    beep();
+    timerInterval = setInterval(() => {
+      secondsLeft--;
+      if (secondsLeft <= 0) {
+        beep();
+        const key = document.getElementById('routine-select').value;
+        const list = ROUTINES[key];
+        const maxRounds = key === 'evening' ? 3 : 1;
+        if (!isResting && list[exIndex].rest > 0) {
+          isResting = true;
+          secondsLeft = list[exIndex].rest;
+        } else {
+          isResting = false;
+          exIndex++;
+          if (exIndex >= list.length) {
+            exIndex = 0;
+            roundNum++;
+            if (roundNum > maxRounds) {
+              clearInterval(timerInterval);
+              timerRunning = false;
+              btn.textContent = 'Workout Complete!';
+              const today = ensureToday();
+              if (!today.habits.move) toggleHabit('move');
+              return;
+            }
+          }
+          secondsLeft = list[exIndex].work;
+        }
+      }
+      updateTimerUI();
+    }, 1000);
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    exIndex = 0;
+    roundNum = 1;
+    isResting = false;
+    const key = document.getElementById('routine-select').value;
+    secondsLeft = ROUTINES[key][0].work;
+    document.getElementById('timer-toggle-btn').textContent = 'Start Workout';
+    updateTimerUI();
+  }
+
+  function switchTab(name, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(`tab-${name}`).classList.add('active');
+    el.classList.add('active');
+  }
+
+  // INLINE PWA MANIFEST FOR STANDALONE HOME-SCREEN INSTALL
+  const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="42" fill="#0f172a"/><circle cx="96" cy="96" r="62" fill="none" stroke="#10b981" stroke-width="14"/><text x="96" y="108" font-size="44" font-family="sans-serif" font-weight="bold" fill="#f1f5f9" text-anchor="middle">73</text></svg>`;
+  const manifestObj = {
+    name: 'Momentum 73',
+    short_name: 'Momentum 73',
+    start_url: '.',
+    display: 'standalone',
+    background_color: '#0b1120',
+    theme_color: '#0f172a',
+    icons: [{ src: 'data:image/svg+xml;base64,' + btoa(iconSvg), sizes: '192x192', type: 'image/svg+xml' }]
+  };
+  document.getElementById('manifest-placeholder').setAttribute('href', 'data:application/manifest+json;base64,' + btoa(JSON.stringify(manifestObj)));
+
+  renderAll();
+  resetTimer();
+</script>
+</body>
+</html>
