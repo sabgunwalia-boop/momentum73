@@ -1,4 +1,4 @@
-const CACHE_NAME = 'momentum73-v1';
+const CACHE_NAME = 'momentum73-v2';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.png'];
 
 self.addEventListener('install', (e) => {
